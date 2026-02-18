@@ -54,6 +54,7 @@
       padding: 8px 12px;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 10px;
       min-height: var(--bar-height);
       flex-wrap: wrap;
@@ -228,7 +229,9 @@
     /* ── Grid Area ── */
     #grid-wrapper {
       flex: 1;
+      min-height: 0; /* critical: allows flex child to shrink below content height so overflow:auto works */
       overflow: auto;
+      -webkit-overflow-scrolling: touch; /* momentum scrolling on iOS */
       position: relative;
       display: flex;
       align-items: flex-start;
@@ -352,7 +355,8 @@
       min-height: var(--legend-height);
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      gap: 8px;
       overflow-x: auto;
       scrollbar-width: none;
     }
@@ -362,23 +366,23 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
-      padding: 5px 8px;
+      gap: 4px;
+      padding: 6px 10px;
       border-radius: var(--radius);
       border: 2px solid transparent;
       cursor: pointer;
       transition: border-color 0.15s, background 0.15s;
       flex-shrink: 0;
-      min-width: 44px;
+      min-width: 52px;
       position: relative;
     }
     .legend-item.safe { border-color: rgba(76, 175, 80, 0.4); background: rgba(76, 175, 80, 0.08); }
     .legend-item.danger { border-color: rgba(233, 69, 96, 0.3); background: rgba(233, 69, 96, 0.05); }
     .legend-item.selected { border-color: var(--safe) !important; background: rgba(76, 175, 80, 0.25) !important; box-shadow: 0 0 8px rgba(76,175,80,0.4); }
 
-    .legend-emoji { font-size: 1.3rem; line-height: 1; }
+    .legend-emoji { font-size: 1.8rem; line-height: 1; }
     .legend-count {
-      font-size: 0.65rem;
+      font-size: 0.75rem;
       font-weight: 700;
       color: var(--text-dim);
     }
@@ -610,7 +614,13 @@
     @media (max-width: 480px) {
       .tile { width: 26px; height: 26px; font-size: 0.75rem; }
       .tile.revealed.emoji-tile { font-size: 0.9rem; }
-      #top-bar { gap: 6px; padding: 6px 8px; }
+      #top-bar { gap: 6px; padding: 6px 8px; min-height: unset; }
+      /* Compress top bar on mobile: hide text labels, shrink bars */
+      #hp-section, #xp-section { min-width: 60px; }
+      .stat-label .lbl-text { display: none; } /* hide "HP" / "XP" text labels */
+      #timer-section .lbl { display: none; }
+      #level-emoji { font-size: 1.4rem; }
+      #level-label .lbl { display: none; }
     }
   </style>
 </head>
