@@ -25,14 +25,16 @@ const DIFFICULTIES = {
 //   Normal 30%: lv1→2 needs 10/33 lv1s (10 XP); lv2→3 needs 8/27 lv2s (+16 = 26 XP)
 //   Huge   20%: lv1→2: 10/52 (10); lv2→3: 9/46 (+18=28); lv3→4: 8/40 (+32=60); lv4→5: 7/36 (+56=116)
 //
-// Post-gate: thresholds just above XP earned from clearing gate emojis.
-//   Easy gate   = 50 XP → need 1 lv4 sweep to hit 58
-//   Normal gate = 167 XP → need 1 lv4 sweep to hit 175
-//   Huge gate   = 1072 XP → need 1 lv6/7/8 sweep for each subsequent level
+// Post-gate: thresholds = cumulative XP from sweeping ALL emojis of each level
+//   (mirrors Mamono Sweeper — a perfect game hits each threshold exactly when
+//    the last emoji of that level is swept; damage XP can get you there faster)
+//   Easy gate   = 50 XP  → lv5 needs 1 lv4 sweep (8 XP) to hit 58
+//   Normal gate = 167 XP → lv5 needs 1 lv4 sweep (8 XP) to hit 175
+//   Huge gate   = 1072 XP → lv7: +all lv6 (24×32=768)=1840; lv8: +all lv7 (18×64=1152)=2992; lv9: +all lv8 (13×128=1664)=4656
 const XP_THRESHOLDS = {
-  easy:   [0, 0,   7,  19, 999999,   58, 9999],
-  normal: [0, 0,  10,  26, 999999,  175, 9999],
-  huge:   [0, 0,  10,  28,  60, 116, 999999, 1104, 1168, 1296, 9999],
+  easy:   [0, 0,   7,  19, 999999,   82, 9999],  // post-gate: +all lv4 (4×8=32) = 82
+  normal: [0, 0,  10,  26, 999999,  271, 9999],  // post-gate: +all lv4 (13×8=104) = 271
+  huge:   [0, 0,  10,  28,  60, 116, 999999, 1840, 2992, 4656, 9999],
 };
 
 // Emoji themes
@@ -530,12 +532,12 @@ function handleEmojiReveal(cell) {
     sweepEmoji(cell, /*earnXP=*/false);
     takeDamage(G.hp, cell);
   } else {
-    // Take damage — still sweep the emoji (you paid for it in HP, no XP)
+    // Take damage — sweep the emoji and earn XP (you paid in HP for it)
     const dmg = 5 * Math.pow(2, Math.max(0, diff - 2));
     showToast(`💥 ${G.theme[cell.emojiLevel]} Lv${cell.emojiLevel} hit you for ${dmg} damage!`, 'damage');
     cell.el.style.animation = 'damage-flash 0.4s ease';
     setTimeout(() => { if (cell.el) cell.el.style.animation = ''; }, 400);
-    sweepEmoji(cell, /*earnXP=*/false);
+    sweepEmoji(cell, /*earnXP=*/true);
     takeDamage(dmg, cell);
   }
 }
@@ -722,6 +724,7 @@ function startTimer() {
 // ── Pause ─────────────────────────────────────────────────────────────────────
 
 document.getElementById('pause-btn').addEventListener('click', togglePause);
+document.getElementById('pause-overlay').addEventListener('click', togglePause);
 
 function togglePause() {
   if (G.state === 'playing') {
@@ -920,6 +923,90 @@ function renderScoresScreen() {
   });
 })();
 
+// ── Help Screen ───────────────────────────────────────────────────────────────
+
+const isTouch = navigator.maxTouchPoints > 0;
+
+function showHelpScreen() {
+  const body = document.getElementById('help-body');
+  body.innerHTML = '';
+
+  const sections = [
+    {
+      title: 'Goal',
+      html: `<p>Reveal every tile on the board to win. Hidden tiles contain <strong>leveled emojis</strong> — sweep them all to clear the board.</p>`
+    },
+    {
+      title: 'Number Clues',
+      html: `<ul>
+        <li>Revealed safe tiles show the <strong>sum of all adjacent emoji levels</strong> (up to 8 neighbors).</li>
+        <li>A "5" could mean one Level 5, or a Level 3 + Level 2, etc. — use context to deduce what's there.</li>
+        <li>A "0" auto-reveals all its neighbors recursively.</li>
+        <li>Tap a revealed emoji to toggle its adjacent sum.</li>
+      </ul>`
+    },
+    {
+      title: 'HP & Damage',
+      html: `<p style="margin-bottom:10px">Clicking an emoji <strong>above your level</strong> deals damage but still sweeps it (and earns XP). Your HP is shown in the top bar.</p>
+      <table class="help-damage-table">
+        <tr><th>Level Difference</th><th>Damage</th></tr>
+        <tr><td>1 – 2</td><td>5</td></tr>
+        <tr><td>3</td><td>10</td></tr>
+        <tr><td>4</td><td>20</td></tr>
+        <tr><td>5+</td><td class="instant">💀 Instant death</td></tr>
+      </table>`
+    },
+    {
+      title: 'Leveling Up',
+      html: `<ul>
+        <li>Sweep emojis to earn XP. Higher level emojis = more XP.</li>
+        <li>Your current level determines which emojis are <span style="color:var(--safe)">safe (green)</span> vs <span style="color:var(--danger)">dangerous (red)</span> in the bottom bar.</li>
+        <li><strong>Gate:</strong> At a certain level you must sweep ALL lower-level emojis before advancing. The gate banner at the top shows your progress.</li>
+      </ul>`
+    },
+    {
+      title: isTouch ? 'Controls (Mobile)' : 'Controls (Desktop)',
+      html: isTouch
+        ? `<div class="help-control-row"><span class="help-key">Tap tile</span><span class="help-control-desc">Reveal the tile</span></div>
+           <div class="help-control-row"><span class="help-key">Tap legend + tap tile</span><span class="help-control-desc">Flag a tile with a suspected emoji level — tap a level in the bottom bar to select it (green highlight), then tap a tile to mark it. Flagged tiles above your level are blocked from accidental reveals.</span></div>
+           <div class="help-control-row"><span class="help-key">Swipe</span><span class="help-control-desc">Scroll the board (Huge mode)</span></div>
+           <div class="help-control-row"><span class="help-key">⏸ / Tap overlay</span><span class="help-control-desc">Pause / resume</span></div>`
+        : `<div class="help-control-row"><span class="help-key">Left-click</span><span class="help-control-desc">Reveal the tile</span></div>
+           <div class="help-control-row"><span class="help-key">Right-click</span><span class="help-control-desc">Flag menu — mark a tile with a suspected emoji level. Flagged tiles above your level are blocked from accidental reveals.</span></div>
+           <div class="help-control-row"><span class="help-key">Hover + 1–9</span><span class="help-control-desc">Quick-flag the hovered tile with that level number</span></div>
+           <div class="help-control-row"><span class="help-key">Hover + 0 / Del</span><span class="help-control-desc">Clear flag on hovered tile</span></div>
+           <div class="help-control-row"><span class="help-key">Click + drag</span><span class="help-control-desc">Pan the board (Huge mode)</span></div>
+           <div class="help-control-row"><span class="help-key">⏸</span><span class="help-control-desc">Pause / resume</span></div>`
+    },
+    {
+      title: 'Bottom Legend',
+      html: `<p>Shows each emoji level with its remaining count. <span style="color:var(--safe)">Green border = safe</span> at your current level. <span style="color:var(--danger)">Red border = dangerous</span>. Counts cross out when a level is fully cleared.</p>`
+    },
+  ];
+
+  sections.forEach(s => {
+    const sec = document.createElement('div');
+    sec.className = 'help-section';
+    sec.innerHTML = `<h3>${s.title}</h3>${s.html}`;
+    body.appendChild(sec);
+  });
+
+  document.getElementById('help-screen').classList.add('visible');
+}
+
+function hideHelpScreen() {
+  document.getElementById('help-screen').classList.remove('visible');
+}
+
+document.getElementById('help-btn').addEventListener('click', showHelpScreen);
+document.getElementById('help-close').addEventListener('click', hideHelpScreen);
+
 // ── Boot ──────────────────────────────────────────────────────────────────────
 
 startNewGame();
+
+// Show help on first ever visit
+if (!localStorage.getItem('emojisweeper_help_seen')) {
+  localStorage.setItem('emojisweeper_help_seen', '1');
+  showHelpScreen();
+}

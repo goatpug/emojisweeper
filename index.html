@@ -616,6 +616,99 @@
       30%       { background: rgba(233, 69, 96, 0.35); }
     }
 
+    /* ── Help Screen ── */
+    #help-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: none;
+      flex-direction: column;
+      z-index: 60;
+    }
+    #help-screen.visible { display: flex; }
+    #help-header {
+      background: var(--surface);
+      border-bottom: 2px solid var(--surface2);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    #help-header h2 { flex: 1; font-size: 1.2rem; }
+    #help-close {
+      background: var(--surface2);
+      border: none;
+      border-radius: var(--radius);
+      color: var(--text);
+      cursor: pointer;
+      padding: 6px 14px;
+      font-size: 0.85rem;
+    }
+    #help-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      max-width: 600px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .help-section h3 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+    }
+    .help-section p, .help-section li {
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+    .help-section ul { padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; }
+    .help-damage-table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 0.85rem;
+    }
+    .help-damage-table th {
+      text-align: left;
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 5px 10px;
+      border-bottom: 1px solid var(--surface2);
+    }
+    .help-damage-table td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #1a2a3a;
+    }
+    .help-damage-table .instant { color: var(--danger); font-weight: 700; }
+    .help-control-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 7px 0;
+      border-bottom: 1px solid #1a2a3a;
+      font-size: 0.88rem;
+    }
+    .help-control-row:last-child { border-bottom: none; }
+    .help-key {
+      background: var(--surface2);
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent2);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .help-control-desc { color: var(--text-dim); }
+
     /* ── Responsive: smaller tiles on tiny screens ── */
     @media (max-width: 480px) {
       :root { --tile-w: 26px; }
@@ -679,6 +772,7 @@
     </select>
     <button id="new-game-btn">New Game</button>
     <button id="scores-btn" style="background:var(--surface2);border:none;border-radius:var(--radius);color:var(--text);cursor:pointer;font-size:0.75rem;padding:6px 10px;flex-shrink:0;">🏆 Scores</button>
+    <button id="help-btn" style="background:var(--surface2);border:none;border-radius:var(--radius);color:var(--text);cursor:pointer;font-size:0.75rem;padding:6px 10px;flex-shrink:0;">? Help</button>
   </div>
 
   <!-- ── Gate Progress Banner ── -->
@@ -695,7 +789,7 @@
     <div id="grid"></div>
     <div id="pause-overlay">
       <div class="pause-text">PAUSED</div>
-      <div class="pause-sub">Click ⏸ to resume</div>
+      <div class="pause-sub">Tap anywhere to resume</div>
     </div>
   </div>
 
@@ -750,6 +844,17 @@
     <button id="scores-close">✕ Close</button>
   </div>
   <div id="scores-body">
+    <!-- populated by JS -->
+  </div>
+</div>
+
+<!-- ── Help Screen ── -->
+<div id="help-screen">
+  <div id="help-header">
+    <h2>? How to Play</h2>
+    <button id="help-close">✕ Close</button>
+  </div>
+  <div id="help-body">
     <!-- populated by JS -->
   </div>
 </div>
