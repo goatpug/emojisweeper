@@ -234,9 +234,6 @@
       overflow: auto;
       -webkit-overflow-scrolling: touch; /* momentum scrolling on iOS */
       position: relative;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
       padding: 10px;
       cursor: grab;
       /* Scroll-shadow edge indicators — appear only when there's more to scroll */
@@ -256,7 +253,8 @@
     #grid {
       display: grid;
       gap: 2px;
-      /* grid-template-columns set by JS */
+      margin: 0 auto; /* centers when grid fits in wrapper; left-aligns (scrollable) when it overflows */
+      /* grid-template-columns/rows set by JS */
     }
 
     /* ── Tile Styles ── */
