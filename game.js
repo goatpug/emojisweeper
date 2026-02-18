@@ -593,38 +593,46 @@ function cascadeFromSweep(r, c) {
   const visited = new Set([r * G.cols + c]);
   const queue = [];
 
-  const enqueue = (nr, nc) => {
-    const key = nr * G.cols + nc;
-    if (visited.has(key)) return;
-    visited.add(key);
-    const cell = G.board[nr][nc];
-    if (cell.revealed || cell.emojiLevel > 0) return;
-    queue.push(cell);
-  };
-
-  // Seed from neighbors of the swept emoji
+  // Seed: only neighbors of the swept emoji that are now blank (zero remaining adjacent sum)
   for (let dr = -1; dr <= 1; dr++) {
     for (let dc = -1; dc <= 1; dc++) {
       if (dr === 0 && dc === 0) continue;
       const nr = r + dr, nc = c + dc;
-      if (nr >= 0 && nr < G.rows && nc >= 0 && nc < G.cols) enqueue(nr, nc);
+      if (nr < 0 || nr >= G.rows || nc < 0 || nc >= G.cols) continue;
+      const cell = G.board[nr][nc];
+      const key = nr * G.cols + nc;
+      if (!cell.revealed && cell.emojiLevel === 0 && remainingAdjacentSum(cell) === 0 && !visited.has(key)) {
+        visited.add(key);
+        queue.push(cell);
+      }
     }
   }
 
   while (queue.length > 0) {
     const cell = queue.shift();
     if (cell.revealed || cell.emojiLevel > 0) continue;
-    if (remainingAdjacentSum(cell) !== 0) continue;
 
     cell.revealed = true;
     cell.flagged = 0;
     updateTileEl(cell);
 
+    // Reveal all non-emoji neighbors (like floodFill); only cascade from blank ones
     for (let dr = -1; dr <= 1; dr++) {
       for (let dc = -1; dc <= 1; dc++) {
         if (dr === 0 && dc === 0) continue;
         const nr = cell.r + dr, nc = cell.c + dc;
-        if (nr >= 0 && nr < G.rows && nc >= 0 && nc < G.cols) enqueue(nr, nc);
+        if (nr < 0 || nr >= G.rows || nc < 0 || nc >= G.cols) continue;
+        const neighbor = G.board[nr][nc];
+        const key = nr * G.cols + nc;
+        if (neighbor.revealed || neighbor.emojiLevel > 0 || visited.has(key)) continue;
+        visited.add(key);
+        if (remainingAdjacentSum(neighbor) === 0) {
+          queue.push(neighbor);       // blank — cascade further
+        } else {
+          neighbor.revealed = true;   // numbered border tile — reveal but don't cascade
+          neighbor.flagged = 0;
+          updateTileEl(neighbor);
+        }
       }
     }
   }
