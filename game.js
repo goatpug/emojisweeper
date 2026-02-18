@@ -34,7 +34,7 @@ const THEMES = {
   fruit:   ['', '🍒', '🍏', '🍌', '🍍', '🍉'],
   birds:   ['', '🐤', '🦜', '🦅', '🐧', '🦩'],
   animals: ['', '🐒', '🐅', '🦍', '🦒', '🐘'],
-  huge9:   ['', '🐭', '🐇', '🐈', '🦊', '🐺', '🦁', '🐘', '🦏', '🦣'],
+  huge9:   ['', '🐭', '🐇', '🐈', '🦊', '🐺', '🦁', '🦒', '🦏', '🐘'],
 };
 
 const GATE_LEVEL = { easy: 3, normal: 3, huge: 5 }; // clear all up to this level to unlock next
@@ -717,12 +717,10 @@ function togglePause() {
     G.state = 'paused';
     clearInterval(G.timerInterval);
     document.getElementById('pause-overlay').classList.add('visible');
-    document.getElementById('pause-btn').textContent = '▶';
   } else if (G.state === 'paused') {
     G.state = 'playing';
     startTimer();
     document.getElementById('pause-overlay').classList.remove('visible');
-    document.getElementById('pause-btn').textContent = '⏸';
   }
 }
 
@@ -769,6 +767,7 @@ function populateModal() {
 // ── Event Wiring ──────────────────────────────────────────────────────────────
 
 document.getElementById('new-game-btn').addEventListener('click', startNewGame);
+document.getElementById('difficulty-select').addEventListener('change', startNewGame);
 document.getElementById('modal-new-game').addEventListener('click', () => {
   document.getElementById('modal-overlay').classList.remove('visible');
   startNewGame();
@@ -865,6 +864,50 @@ function renderScoresScreen() {
     body.appendChild(section);
   });
 }
+
+// ── Drag-to-Pan (grid wrapper) ────────────────────────────────────────────────
+
+(function initDragPan() {
+  const wrapper = document.getElementById('grid-wrapper');
+  let dragging = false;
+  let startX, startY, scrollLeft, scrollTop;
+  let moved = false;
+
+  wrapper.addEventListener('mousedown', (e) => {
+    // Only drag on the wrapper or revealed/background tiles, not on hidden tiles (those get click events)
+    dragging = true;
+    moved = false;
+    startX = e.clientX;
+    startY = e.clientY;
+    scrollLeft = wrapper.scrollLeft;
+    scrollTop = wrapper.scrollTop;
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    if (!moved && Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+    moved = true;
+    wrapper.classList.add('dragging');
+    wrapper.scrollLeft = scrollLeft - dx;
+    wrapper.scrollTop = scrollTop - dy;
+  });
+
+  window.addEventListener('mouseup', (e) => {
+    if (!dragging) return;
+    dragging = false;
+    wrapper.classList.remove('dragging');
+    // If we actually dragged, cancel the upcoming click on any tile
+    if (moved) {
+      e.stopPropagation();
+      // Briefly disable tile pointer events so the mouseup doesn't trigger a click
+      const grid = document.getElementById('grid');
+      grid.style.pointerEvents = 'none';
+      setTimeout(() => { grid.style.pointerEvents = ''; }, 50);
+    }
+  });
+})();
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 

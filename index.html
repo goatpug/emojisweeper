@@ -234,7 +234,20 @@
       align-items: flex-start;
       justify-content: center;
       padding: 10px;
+      cursor: grab;
+      /* Scroll-shadow edge indicators — appear only when there's more to scroll */
+      background:
+        linear-gradient(var(--bg) 30%, transparent) top / 100% 32px no-repeat local,
+        linear-gradient(transparent, var(--bg) 70%) bottom / 100% 32px no-repeat local,
+        linear-gradient(90deg, var(--bg) 30%, transparent) left / 32px 100% no-repeat local,
+        linear-gradient(90deg, transparent, var(--bg) 70%) right / 32px 100% no-repeat local,
+        radial-gradient(farthest-side at 50% 0, rgba(0,0,0,.4), transparent) top / 100% 12px no-repeat scroll,
+        radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.4), transparent) bottom / 100% 12px no-repeat scroll,
+        radial-gradient(farthest-side at 0 50%, rgba(0,0,0,.4), transparent) left / 12px 100% no-repeat scroll,
+        radial-gradient(farthest-side at 100% 50%, rgba(0,0,0,.4), transparent) right / 12px 100% no-repeat scroll,
+        var(--bg);
     }
+    #grid-wrapper.dragging { cursor: grabbing; }
 
     #grid {
       display: grid;
@@ -250,7 +263,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.7rem;
+      font-size: 0.9rem;
       font-weight: 700;
       cursor: pointer;
       user-select: none;
@@ -307,7 +320,7 @@
     .tile[data-n="0"]  { color: transparent; }
 
     /* Tile showing adjacent sum (revealed emoji tile toggled) */
-    .tile.sum-view { font-size: 0.7rem; font-weight: 700; }
+    .tile.revealed.emoji-tile.sum-view { font-size: 1.1rem; font-weight: 700; }
 
     /* ── Pause Overlay ── */
     #pause-overlay {
@@ -595,7 +608,7 @@
 
     /* ── Responsive: smaller tiles on tiny screens ── */
     @media (max-width: 480px) {
-      .tile { width: 26px; height: 26px; font-size: 0.6rem; }
+      .tile { width: 26px; height: 26px; font-size: 0.75rem; }
       .tile.revealed.emoji-tile { font-size: 0.9rem; }
       #top-bar { gap: 6px; padding: 6px 8px; }
     }
