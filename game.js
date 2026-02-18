@@ -185,7 +185,9 @@ function startNewGame() {
 
 function renderBoard() {
   const grid = document.getElementById('grid');
-  grid.style.gridTemplateColumns = `repeat(${G.cols}, 32px)`;
+  const tileW = getComputedStyle(document.documentElement).getPropertyValue('--tile-w').trim();
+  grid.style.gridTemplateColumns = `repeat(${G.cols}, ${tileW})`;
+  grid.style.gridTemplateRows = `repeat(${G.rows}, ${tileW})`;
   grid.innerHTML = '';
 
   for (let r = 0; r < G.rows; r++) {
@@ -248,6 +250,8 @@ function updateTileEl(cell) {
 function renderLegend() {
   const bar = document.getElementById('legend-bar');
   bar.innerHTML = '';
+  const inner = document.createElement('div');
+  inner.id = 'legend-inner';
   for (let lvl = 1; lvl <= G.cfg.maxLevel; lvl++) {
     const item = document.createElement('div');
     item.className = 'legend-item';
@@ -265,8 +269,9 @@ function renderLegend() {
       <span class="legend-count${remaining === 0 ? ' zero' : ''}">${remaining}/${total}</span>
     `;
     item.addEventListener('click', () => onLegendClick(lvl));
-    bar.appendChild(item);
+    inner.appendChild(item);
   }
+  bar.appendChild(inner);
 }
 
 function updateLegendCounts() {

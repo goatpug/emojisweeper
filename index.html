@@ -28,6 +28,7 @@
       --radius: 6px;
       --bar-height: 56px;
       --legend-height: 72px;
+      --tile-w: 32px;
     }
 
     html, body {
@@ -260,8 +261,8 @@
 
     /* ── Tile Styles ── */
     .tile {
-      width: 32px;
-      height: 32px;
+      width: var(--tile-w);
+      height: var(--tile-w);
       border-radius: 4px;
       display: flex;
       align-items: center;
@@ -327,7 +328,7 @@
 
     /* ── Pause Overlay ── */
     #pause-overlay {
-      position: absolute;
+      position: fixed;
       inset: 0;
       background: rgba(10, 15, 30, 0.95);
       display: none;
@@ -335,7 +336,7 @@
       justify-content: center;
       flex-direction: column;
       gap: 12px;
-      z-index: 10;
+      z-index: 50;
     }
     #pause-overlay.visible { display: flex; }
     #pause-overlay .pause-text {
@@ -351,16 +352,20 @@
       flex-shrink: 0;
       background: var(--surface);
       border-top: 2px solid var(--surface2);
-      padding: 6px 10px;
       min-height: var(--legend-height);
       display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
       overflow-x: auto;
       scrollbar-width: none;
     }
     #legend-bar::-webkit-scrollbar { display: none; }
+    #legend-inner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      margin: 0 auto;   /* centers when content fits */
+      flex-shrink: 0;   /* doesn't shrink → overflows when too wide → bar scrolls */
+    }
 
     .legend-item {
       display: flex;
@@ -612,7 +617,8 @@
 
     /* ── Responsive: smaller tiles on tiny screens ── */
     @media (max-width: 480px) {
-      .tile { width: 26px; height: 26px; font-size: 0.75rem; }
+      :root { --tile-w: 26px; }
+      .tile { font-size: 0.75rem; }
       .tile.revealed.emoji-tile { font-size: 0.9rem; }
       #top-bar { gap: 6px; padding: 6px 8px; min-height: unset; }
       /* Compress top bar on mobile: hide text labels, shrink bars */
