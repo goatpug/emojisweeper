@@ -353,7 +353,6 @@
       background: var(--surface);
       border-top: 2px solid var(--surface2);
       min-height: var(--legend-height);
-      display: flex;
       overflow-x: auto;
       scrollbar-width: none;
     }
@@ -361,10 +360,13 @@
     #legend-inner {
       display: flex;
       align-items: center;
+      justify-content: center; /* centers items when inner fills bar */
       gap: 8px;
       padding: 6px 10px;
-      margin: 0 auto;   /* centers when content fits */
-      flex-shrink: 0;   /* doesn't shrink → overflows when too wide → bar scrolls */
+      min-width: 100%;         /* stretch to bar width when content fits → justify-content centers */
+      width: fit-content;      /* shrink to content when items overflow → scrolls from left edge */
+      min-height: var(--legend-height);
+      box-sizing: border-box;
     }
 
     .legend-item {
@@ -619,6 +621,7 @@
     @media (max-width: 480px) {
       :root { --tile-w: 26px; }
       .tile { font-size: 0.75rem; }
+      #grid { column-gap: 1px; } /* compensate for optical illusion at small tile size */
       .tile.revealed.emoji-tile { font-size: 0.9rem; }
       #top-bar { gap: 6px; padding: 6px 8px; min-height: unset; }
       /* Compress top bar on mobile: hide text labels, shrink bars */

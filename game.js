@@ -19,14 +19,20 @@ const DIFFICULTIES = {
 
 // XP thresholds (cumulative total XP) to reach player level N.
 // 999999 = gate placeholder — blocked until gateUnlocked flag is set.
-// After gate: thresholds must exceed XP earned from clearing gate emojis.
-//   Easy gate clears lv1-3: 10×1 + 8×2 + 6×4 = 50 XP → post-gate threshold 58
-//   Normal gate clears lv1-3: 33×1 + 27×2 + 20×4 = 167 XP → post-gate threshold 175
-//   Huge gate clears lv1-5: 52+92+160+288+480 = 1072 XP → post-gate threshold 1104
+//
+// Pre-gate thresholds mirror Mamono Sweeper's sweep requirements:
+//   Easy   70%: lv1→2 needs 7/10 lv1s (7 XP); lv2→3 needs 6/8 lv2s (+12 = 19 XP)
+//   Normal 30%: lv1→2 needs 10/33 lv1s (10 XP); lv2→3 needs 8/27 lv2s (+16 = 26 XP)
+//   Huge   20%: lv1→2: 10/52 (10); lv2→3: 9/46 (+18=28); lv3→4: 8/40 (+32=60); lv4→5: 7/36 (+56=116)
+//
+// Post-gate: thresholds just above XP earned from clearing gate emojis.
+//   Easy gate   = 50 XP → need 1 lv4 sweep to hit 58
+//   Normal gate = 167 XP → need 1 lv4 sweep to hit 175
+//   Huge gate   = 1072 XP → need 1 lv6/7/8 sweep for each subsequent level
 const XP_THRESHOLDS = {
-  easy:   [0, 0,  3,  9,  999999,  58,  9999],
-  normal: [0, 0,  3,  9,  999999, 175,  9999],
-  huge:   [0, 0,  3,  9,  22,  50, 999999, 1104, 1168, 1296, 9999],
+  easy:   [0, 0,   7,  19, 999999,   58, 9999],
+  normal: [0, 0,  10,  26, 999999,  175, 9999],
+  huge:   [0, 0,  10,  28,  60, 116, 999999, 1104, 1168, 1296, 9999],
 };
 
 // Emoji themes
