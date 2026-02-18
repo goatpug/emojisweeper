@@ -569,6 +569,65 @@ function sweepEmoji(cell, earnXP = true) {
   cell.adjacentSum = sum;
 
   checkLevelUp();
+  cascadeFromSweep(cell.r, cell.c);
+}
+
+// After sweeping an emoji, any adjacent safe tile whose remaining adjacent
+// emoji sum is now 0 auto-reveals — cascading recursively (same rule as flood fill).
+function remainingAdjacentSum(cell) {
+  let sum = 0;
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      if (dr === 0 && dc === 0) continue;
+      const nr = cell.r + dr, nc = cell.c + dc;
+      if (nr >= 0 && nr < G.rows && nc >= 0 && nc < G.cols) {
+        const n = G.board[nr][nc];
+        if (n.emojiLevel > 0 && !n.revealed) sum += n.emojiLevel;
+      }
+    }
+  }
+  return sum;
+}
+
+function cascadeFromSweep(r, c) {
+  const visited = new Set([r * G.cols + c]);
+  const queue = [];
+
+  const enqueue = (nr, nc) => {
+    const key = nr * G.cols + nc;
+    if (visited.has(key)) return;
+    visited.add(key);
+    const cell = G.board[nr][nc];
+    if (cell.revealed || cell.emojiLevel > 0) return;
+    queue.push(cell);
+  };
+
+  // Seed from neighbors of the swept emoji
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      if (dr === 0 && dc === 0) continue;
+      const nr = r + dr, nc = c + dc;
+      if (nr >= 0 && nr < G.rows && nc >= 0 && nc < G.cols) enqueue(nr, nc);
+    }
+  }
+
+  while (queue.length > 0) {
+    const cell = queue.shift();
+    if (cell.revealed || cell.emojiLevel > 0) continue;
+    if (remainingAdjacentSum(cell) !== 0) continue;
+
+    cell.revealed = true;
+    cell.flagged = 0;
+    updateTileEl(cell);
+
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        if (dr === 0 && dc === 0) continue;
+        const nr = cell.r + dr, nc = cell.c + dc;
+        if (nr >= 0 && nr < G.rows && nc >= 0 && nc < G.cols) enqueue(nr, nc);
+      }
+    }
+  }
 }
 
 function takeDamage(amount, cell) {
@@ -1005,8 +1064,3 @@ document.getElementById('help-close').addEventListener('click', hideHelpScreen);
 
 startNewGame();
 
-// Show help on first ever visit
-if (!localStorage.getItem('emojisweeper_help_seen')) {
-  localStorage.setItem('emojisweeper_help_seen', '1');
-  showHelpScreen();
-}
