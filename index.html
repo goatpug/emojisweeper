@@ -253,7 +253,8 @@
     #grid {
       display: grid;
       gap: 2px;
-      margin: 0 auto; /* centers when grid fits in wrapper; left-aligns (scrollable) when it overflows */
+      width: fit-content;  /* shrink to column widths so margin:auto can center it */
+      margin: 0 auto;      /* centers when grid fits in wrapper; left-aligns when it overflows */
       /* grid-template-columns/rows set by JS */
     }
 
