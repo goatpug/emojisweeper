@@ -709,6 +709,44 @@
     }
     .help-control-desc { color: var(--text-dim); }
 
+    /* ── Sweep Confirm Overlay ── */
+    #sweep-confirm {
+      display: none; position: fixed; inset: 0;
+      background: rgba(10,15,30,0.88); z-index: 200;
+      align-items: center; justify-content: center;
+    }
+    #sweep-confirm.visible { display: flex; }
+    #sweep-confirm-box {
+      background: var(--surface2); border: 1px solid #3a5480;
+      border-radius: var(--radius); padding: 20px 24px;
+      max-width: 300px; text-align: center;
+    }
+    #sweep-confirm-msg {
+      color: var(--warning); margin-bottom: 16px;
+      font-size: 0.95rem; line-height: 1.4;
+    }
+    #sweep-confirm-btns { display: flex; gap: 10px; justify-content: center; }
+    #sweep-confirm-ok {
+      background: var(--danger); border: none; border-radius: var(--radius);
+      color: white; cursor: pointer; font-size: 0.85rem; font-weight: 700;
+      padding: 8px 20px; transition: background 0.15s;
+    }
+    #sweep-confirm-ok:hover { background: #c73652; }
+    #sweep-confirm-cancel {
+      background: var(--surface); border: 1px solid #3a5480; border-radius: var(--radius);
+      color: var(--text-dim); cursor: pointer; font-size: 0.85rem; font-weight: 700;
+      padding: 8px 20px; transition: background 0.15s;
+    }
+    #sweep-confirm-cancel:hover { background: #1a4080; color: var(--text); }
+    .legend-sweep-btn {
+      display: none; margin-top: 2px;
+      background: none; border: 1px solid var(--warning);
+      color: var(--warning); border-radius: 10px;
+      font-size: 0.6rem; font-weight: 700;
+      padding: 1px 6px; cursor: pointer; white-space: nowrap;
+    }
+    .legend-sweep-btn:hover { background: rgba(245,166,35,0.15); }
+
     /* ── Responsive: smaller tiles on tiny screens ── */
     @media (max-width: 480px) {
       :root { --tile-w: 26px; }
@@ -833,6 +871,17 @@
     <div class="modal-buttons">
       <button class="modal-btn" id="modal-new-game">Play Again</button>
       <button class="modal-btn secondary" id="modal-scores">View Scores</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Sweep Confirm Overlay ── -->
+<div id="sweep-confirm">
+  <div id="sweep-confirm-box">
+    <p id="sweep-confirm-msg"></p>
+    <div id="sweep-confirm-btns">
+      <button id="sweep-confirm-ok">Sweep</button>
+      <button id="sweep-confirm-cancel">Cancel</button>
     </div>
   </div>
 </div>

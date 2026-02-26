@@ -277,12 +277,29 @@ function renderLegend() {
       <span class="legend-count${remaining === 0 ? ' zero' : ''}">${remaining}/${total}</span>
     `;
     item.addEventListener('click', () => onLegendClick(lvl));
+
+    const sweepBtn = document.createElement('button');
+    sweepBtn.className = 'legend-sweep-btn';
+    sweepBtn.dataset.level = lvl;
+    sweepBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sweepAllFlagged(lvl);
+    });
+    item.appendChild(sweepBtn);
+
     inner.appendChild(item);
   }
   bar.appendChild(inner);
 }
 
 function updateLegendCounts() {
+  const flaggedByLevel = new Array(G.cfg.maxLevel + 1).fill(0);
+  for (let r = 0; r < G.rows; r++)
+    for (let c = 0; c < G.cols; c++) {
+      const cell = G.board[r][c];
+      if (cell.flagged > 0 && !cell.revealed) flaggedByLevel[cell.flagged]++;
+    }
+
   const items = document.querySelectorAll('.legend-item');
   items.forEach(item => {
     const lvl = parseInt(item.dataset.level);
@@ -297,6 +314,13 @@ function updateLegendCounts() {
     item.classList.remove('safe', 'danger', 'selected');
     item.classList.add(isSafe ? 'safe' : 'danger');
     if (G.selectedFlagLevel === lvl) item.classList.add('selected');
+
+    const fc = flaggedByLevel[lvl] || 0;
+    const sweepBtn = item.querySelector('.legend-sweep-btn');
+    if (sweepBtn) {
+      sweepBtn.style.display = fc > 0 ? 'block' : 'none';
+      sweepBtn.textContent = `⚡ ${fc} marked`;
+    }
   });
 }
 
@@ -1067,6 +1091,52 @@ function hideHelpScreen() {
 
 document.getElementById('help-btn').addEventListener('click', showHelpScreen);
 document.getElementById('help-close').addEventListener('click', hideHelpScreen);
+
+// ── Mass Sweep ────────────────────────────────────────────────────────────────
+
+function sweepAllFlagged(lvl) {
+  if (G.state !== 'playing') return;
+  const toSweep = [];
+  for (let r = 0; r < G.rows; r++)
+    for (let c = 0; c < G.cols; c++) {
+      const cell = G.board[r][c];
+      if (cell.flagged === lvl && !cell.revealed) toSweep.push(cell);
+    }
+  if (toSweep.length === 0) return;
+
+  const wrongCount = toSweep.filter(cell => cell.emojiLevel !== lvl).length;
+  if (wrongCount > 0) {
+    showSweepConfirm(
+      `⚠️ ${wrongCount} mark${wrongCount > 1 ? 's' : ''} might be wrong. Sweep anyway?`,
+      () => doSweepAll(toSweep)
+    );
+  } else {
+    doSweepAll(toSweep);
+  }
+}
+
+function doSweepAll(toSweep) {
+  for (const cell of toSweep) {
+    if (G.state === 'dead' || G.state === 'won') break;
+    if (cell.revealed) continue;
+    cell.flagged = 0;
+    revealCell(cell.r, cell.c);
+  }
+}
+
+function showSweepConfirm(msg, onConfirm) {
+  document.getElementById('sweep-confirm-msg').textContent = msg;
+  const overlay = document.getElementById('sweep-confirm');
+  overlay.classList.add('visible');
+
+  const ok = document.getElementById('sweep-confirm-ok');
+  const cancel = document.getElementById('sweep-confirm-cancel');
+  const close = () => overlay.classList.remove('visible');
+
+  const okHandler = () => { close(); onConfirm(); };
+  ok.addEventListener('click', okHandler, { once: true });
+  cancel.addEventListener('click', close, { once: true });
+}
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 
