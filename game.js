@@ -281,6 +281,7 @@ function renderLegend() {
     const sweepBtn = document.createElement('button');
     sweepBtn.className = 'legend-sweep-btn';
     sweepBtn.dataset.level = lvl;
+    sweepBtn.textContent = '⚡ 0 marked';
     sweepBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       sweepAllFlagged(lvl);
