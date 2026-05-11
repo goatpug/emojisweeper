@@ -318,7 +318,7 @@ function updateLegendCounts() {
     const fc = flaggedByLevel[lvl] || 0;
     const sweepBtn = item.querySelector('.legend-sweep-btn');
     if (sweepBtn) {
-      sweepBtn.style.display = fc > 0 ? 'block' : 'none';
+      sweepBtn.style.visibility = fc > 0 ? 'visible' : 'hidden';
       sweepBtn.textContent = `⚡ ${fc} marked`;
     }
   });

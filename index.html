@@ -205,12 +205,13 @@
       background: linear-gradient(90deg, #1a3a1a, #0f2a1f);
       border-bottom: 1px solid #2d5a2d;
       padding: 5px 12px;
-      display: none;
+      display: flex;
       align-items: center;
       gap: 8px;
       font-size: 0.8rem;
+      visibility: hidden;
     }
-    #gate-banner.visible { display: flex; }
+    #gate-banner.visible { visibility: visible; }
     #gate-text { color: #7ecf7e; flex: 1; }
     #gate-progress-track {
       width: 100px;
@@ -323,7 +324,7 @@
     .tile[data-n="0"]  { color: #546e7a; }
 
     /* Tile showing adjacent sum (revealed emoji tile toggled) */
-    .tile.revealed.emoji-tile.sum-view { font-size: 1.1rem; font-weight: 700; }
+    .tile.revealed.emoji-tile.sum-view { font-size: 1.1rem; font-weight: 700; box-shadow: inset 0 0 0 2px var(--accent2); }
 
     /* ── Pause Overlay ── */
     #pause-overlay {
@@ -739,7 +740,7 @@
     }
     #sweep-confirm-cancel:hover { background: #1a4080; color: var(--text); }
     .legend-sweep-btn {
-      display: none; margin-top: 2px;
+      visibility: hidden; margin-top: 2px;
       background: none; border: 1px solid var(--warning);
       color: var(--warning); border-radius: 10px;
       font-size: 0.6rem; font-weight: 700;
