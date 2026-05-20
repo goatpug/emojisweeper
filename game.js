@@ -42,7 +42,7 @@ const THEMES = {
   fruit:   ['', '🍒', '🍏', '🍌', '🍍', '🍉'],
   birds:   ['', '🐤', '🦜', '🦅', '🐧', '🦩'],
   animals: ['', '🐒', '🐅', '🦍', '🦒', '🐘'],
-  huge9:   ['', '🐭', '🐇', '🐈', '🦊', '🐺', '🦁', '🦒', '🦏', '🐘'],
+  huge9:   ['', '🐭', '🦆', '🐈', '🦊', '🐺', '🦁', '🦒', '🦏', '🐘'],
 };
 
 const GATE_LEVEL = { easy: 3, normal: 3, huge: 5 }; // clear all up to this level to unlock next
