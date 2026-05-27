@@ -943,16 +943,22 @@ function renderScoresScreen() {
 
       const table = document.createElement('table');
       table.className = 'scores-table';
+      const sortArrow = k => scoresSortKey === k ? (scoresSortAsc ? ' ▲' : ' ▼') : '';
+      const sortedClass = k => scoresSortKey === k ? 'sorted' : '';
       table.innerHTML = `
         <tr>
-          <th data-key="time"  class="${scoresSortKey === 'time'   ? 'sorted' : ''}">Time ${scoresSortKey === 'time'   ? (scoresSortAsc ? '▲' : '▼') : ''}</th>
-          <th data-key="clicks" class="${scoresSortKey === 'clicks' ? 'sorted' : ''}">Clicks ${scoresSortKey === 'clicks' ? (scoresSortAsc ? '▲' : '▼') : ''}</th>
-          <th data-key="damage" class="${scoresSortKey === 'damage' ? 'sorted' : ''}">Damage ${scoresSortKey === 'damage' ? (scoresSortAsc ? '▲' : '▼') : ''}</th>
+          <th data-key="time"   class="${sortedClass('time')}">Time${sortArrow('time')}</th>
+          <th data-key="clicks" class="${sortedClass('clicks')}">Clicks${sortArrow('clicks')}</th>
+          <th data-key="damage" class="${sortedClass('damage')}">Damage${sortArrow('damage')}</th>
+          <th data-key="date"   class="${sortedClass('date')}">Date${sortArrow('date')}</th>
+          <th class="score-delete-col"></th>
         </tr>
       `;
       sorted.forEach(s => {
+        const dateStr = s.date ? new Date(s.date).toLocaleDateString() : '—';
         const row = document.createElement('tr');
-        row.innerHTML = `<td>${formatTime(s.time)}</td><td>${s.clicks}</td><td>${s.damage}</td>`;
+        row.innerHTML = `<td>${formatTime(s.time)}</td><td>${s.clicks}</td><td>${s.damage}</td><td>${dateStr}</td><td class="score-delete-col"><button class="score-delete-btn" title="Delete this score">✕</button></td>`;
+        row.querySelector('.score-delete-btn').addEventListener('click', () => deleteScore(d, s.date));
         table.appendChild(row);
       });
 
@@ -969,6 +975,15 @@ function renderScoresScreen() {
     }
     body.appendChild(section);
   });
+}
+
+function deleteScore(difficulty, date) {
+  const scores = loadScores();
+  if (scores[difficulty]) {
+    scores[difficulty] = scores[difficulty].filter(s => s.date !== date);
+    localStorage.setItem(SCORES_KEY, JSON.stringify(scores));
+  }
+  renderScoresScreen();
 }
 
 // ── Drag-to-Pan (grid wrapper) ────────────────────────────────────────────────
